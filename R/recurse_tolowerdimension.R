@@ -13,10 +13,6 @@ recurse_tolowerdimension <- function(X, V = diag(ncol(X)),
           maxsteps = NULL
           ){
   X <- as.matrix(X)
-
-  # X.ls <- prepare_vertex_names(X, V)
-  # X = X.ls$X
-  # V = X.ls$V
   stopifnot(all(X >= 0))
   stopifnot(all(abs(rowSums(X) - 1) < 1E-10))
 
@@ -68,20 +64,4 @@ recurse_tolowerdimension <- function(X, V = diag(ncol(X)),
     mergedirections = mergedirections,
     Vbirth = Vbirth
   ))
-}
-
-
-prepare_vertex_names <- function(X, V){
-
-  if (all(V == diag(ncol(X)))){                                                 # if V is the identity matrix (== the first iteration)
-    if (!is.null(colnames(X))){colnames(V) <- rownames(V) <- colnames(X)}       # column names of X
-    else if (!is.null(colnames(V))){colnames(X) <- rownames(V) <- colnames(V)}  # column names of V
-    else if (!is.null(rownames(V))){colnames(X) <- colnames(V) <- rownames(V)}  # row names of V
-    else {colnames(X) <- colnames(V) <- rownames(V) <- paste0("V", 1:nrow(V))}  # V1, ..., Vp
-  } else {
-    if (!is.null(colnames(X))){rownames(V) <- colnames(X)}                      # column names of X
-    else if (!is.null(rownames(V))){colnames(X) <- rownames(V)}                 # row names of V
-    else {colnames(X) <- rownames(V) <- paste0("V", 1:nrow(V))}                 # V1, ..., Vp
-  }
-  return(list(X = X, V = V))
 }
