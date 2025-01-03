@@ -1,0 +1,23 @@
+---
+title: "psacomp"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{psacomp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(psacomp)
+```
+
+```{r, incdlue = TRUE}
+
+```
