@@ -22,6 +22,7 @@
 psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
   n = nrow(X)
   d = ncol(X)-1
+  if(is.null(colnames(X))) colnames(X) = paste0('e',1:ncol(X))
   var.names = colnames(X)
 
   ## output format

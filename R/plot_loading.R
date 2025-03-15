@@ -9,7 +9,7 @@
 #' @return a ggplot object
 #'
 #' @export
-plot_loading <- function(V, k = 4, max.k = 12){
+plot_loading <- function(psa.res, k = 4, max.k = 12){
 
   if (!requireNamespace("cowplot", quietly = TRUE)) {
     stop(
@@ -18,6 +18,7 @@ plot_loading <- function(V, k = 4, max.k = 12){
     )
   }
 
+  V = psa.res$loadings
   ls = list()
   for(i in 1:k){
     ls[[i]] = plot_bar(V[,i], max.k) + ggtitle(paste0('Comp.',i))

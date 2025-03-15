@@ -40,7 +40,9 @@ X = sweep(X, 1, rowSums(X), '/')
 Main function of *psacomp* is `psa()` which takes `type` and `X` as arguments. Available options for `type` are `type = 's'` for PSA-S and `type = 'o'` for PSA-O.
 
 ```{r, incdlue = TRUE}
-library(psacomp)
+# library(psacomp)
+library(devtools)
+load_all()
 X.psas = psa(type = 's', X = X)
 X.psao = psa(type = 'o', X = X)
 ```
@@ -57,14 +59,14 @@ The data points can be colored according to any associated features such as `gro
 
 ```{r, include = TRUE, fig.width = 6, fig.height = 4}
 groups = as.factor(rep(1:4, each = 5))
-plot_ternary(X.psas, groups)
+plot_ternary(X.psas, groups = groups)
 ```
 
 `groups` can be continuous. The legend title is given by `group.name`.
 
 ```{r, include = TRUE, fig.width = 6, fig.height = 4}
 intensity = rnorm(20)
-plot_ternary(X.psas, intensity, group.name = 'Intensity')
+plot_ternary(X.psas, groups = intensity, group.name = 'Intensity')
 ```
 The second graphic is a bar plot representing the loading vectors. `plot_loading(X.psas, k)` displays the first `k` loading vectors.
 ```{r, incdlue = TRUE, fig.width = 6, fig.height = 3}

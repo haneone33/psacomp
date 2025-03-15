@@ -38,7 +38,7 @@ plot_vertex <- function(V, max.k = 12){
 #' @return a ggplot object
 #'
 #' @export
-plot_ternary <- function(psa.res, groups = NULL, group.name = 'Groups', max.k = 12){
+plot_ternary <- function(psa.res, groups = NULL, group.name = NULL, max.k = 12){
 
   if (!requireNamespace("ggtern", quietly = TRUE)) {
     stop(
@@ -53,9 +53,10 @@ plot_ternary <- function(psa.res, groups = NULL, group.name = 'Groups', max.k = 
   if(is.null(groups)){
     g1 = ggtern::ggtern(df, aes(x = .data$V1, y = .data$V2, z = .data$V3))
   }else{
-    df$Groups = Groups
+    df$Groups = groups
     g1 = ggtern::ggtern(df, aes(x = .data$V1, y = .data$V2, z = .data$V3,
                                 col = .data$Groups))
+    if(!is.null(group.name)) g1 = g1 + labs(color = group.name)
   }
 
   g1 = g1 + geom_point(shape = 1) +
@@ -64,8 +65,6 @@ plot_ternary <- function(psa.res, groups = NULL, group.name = 'Groups', max.k = 
           legend.position = 'left',
           legend.justification = c(0, 0.9),
           plot.margin = margin(0,-30,0,30))
-
-  if(!is.null(groups)) g1 = g1 + guides(fill = guide_legend(title = group.name))
 
   g2 = plot_vertex(psa.res$vertices$`r=3`, max.k) +
     theme(plot.margin = margin(30,0,30,0))
