@@ -19,7 +19,8 @@ plot_vertex <- function(V, max.k = 12){
   for(i in 1:k){
     ls[[i]] = plot_bar(V[i,], max.k) +
       ggtitle(paste0('V',i)) +
-      scale_fill_manual(values = 'darkgray')
+      scale_fill_manual(values = 'darkgray') +
+      scale_y_continuous(breaks = pretty(2))
   }
   cowplot::plot_grid(plotlist = ls, nrow = 1)
 }
@@ -30,13 +31,14 @@ plot_vertex <- function(V, max.k = 12){
 #' @import ggplot2
 #'
 #' @param psa.res output of `psa()`
-#' @param group a vector of factors representing groups of data points if applicable
+#' @param groups a vector for colors of data points if applicable
+#' @param group.name title for legend if `groups` exists
 #' @inheritParams plot_vertex
 #'
 #' @return a ggplot object
 #'
 #' @export
-plot_ternary <- function(psa.res, group = NULL, max.k = 12){
+plot_ternary <- function(psa.res, groups = NULL, group.name = 'Groups', max.k = 12){
 
   if (!requireNamespace("ggtern", quietly = TRUE)) {
     stop(
@@ -47,8 +49,14 @@ plot_ternary <- function(psa.res, group = NULL, max.k = 12){
 
   df = as.data.frame(psa.res$pts$`r=3`)
   colnames(df) = c('V1','V2','V3')
-  if(is.null(group)) g1 = ggtern::ggtern(df, aes(x = .data$V1, y = .data$V2, z = .data$V3))
-  else g1 = ggtern::ggtern(df, aes(x = .data$V1, y = .data$V2, z = .data$V3, col = group))
+
+  if(is.null(groups)){
+    g1 = ggtern::ggtern(df, aes(x = .data$V1, y = .data$V2, z = .data$V3))
+  }else{
+    df$Groups = Groups
+    g1 = ggtern::ggtern(df, aes(x = .data$V1, y = .data$V2, z = .data$V3,
+                                col = .data$Groups))
+  }
 
   g1 = g1 + geom_point(shape = 1) +
     theme_bw() +
@@ -56,6 +64,8 @@ plot_ternary <- function(psa.res, group = NULL, max.k = 12){
           legend.position = 'left',
           legend.justification = c(0, 0.9),
           plot.margin = margin(0,-30,0,30))
+
+  if(!is.null(groups)) g1 = g1 + guides(fill = guide_legend(title = group.name))
 
   g2 = plot_vertex(psa.res$vertices$`r=3`, max.k) +
     theme(plot.margin = margin(30,0,30,0))

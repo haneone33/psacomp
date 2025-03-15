@@ -1,21 +1,31 @@
 ---
-title: "psacomp"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{psacomp}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: github_document
 ---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
 )
 ```
 
-```{r setup}
-library(psacomp)
+# psacomp
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+*psacomp* is a package for computing *Principal Subsimplex Analysis* introduced in *Principal Subsimplex Analysis* (2025+), Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron.
+
+## Installation
+The package `psacomp` can be installed by running the following code.
+
+```{r, eval = F}
+library(devtools)
+devtools::install_github("haneone33/psacomp")
 ```
 
 ## PSA Basics
@@ -26,8 +36,11 @@ set.seed(1)
 X = matrix(runif(20*7),20,7)
 X = sweep(X, 1, rowSums(X), '/')
 ```
+
 Main function of *psacomp* is `psa()` which takes `type` and `X` as arguments. Available options for `type` are `type = 's'` for PSA-S and `type = 'o'` for PSA-O.
+
 ```{r, incdlue = TRUE}
+library(psacomp)
 X.psas = psa(type = 's', X = X)
 X.psao = psa(type = 'o', X = X)
 ```
@@ -76,3 +89,4 @@ tabl <- "
 "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
+
