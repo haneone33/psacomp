@@ -7,7 +7,6 @@ get_loading <- function(merge.info){
     v2 = merge.info$vertices[[paste0('r=',r+1)]][merge.info$merges[paste0('r=',r),'v2'],]
     loadings.ls[[paste0('r=',r)]] = v2 - v1
   }
-  loadings.ls[[paste0('r=',max_r)]] = NA
 
   loadings <- do.call('cbind', loadings.ls)
   return(loadings)

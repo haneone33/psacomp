@@ -14,26 +14,41 @@
 #' + modes a list of modes of variation. The $r$th element of the list is the difference of
 #' rank $r$ approximations to rank $r-1$ approximations.
 #' + loadings a matrix of loading vectors.
-#' + const.info a data frame of merged vertices and merging weight at each merge.
+#' + construction_info a data frame of merged vertices and merging weight at each merge.
 #' + dendrogram.input .
 #'
 #' @export
 
 psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
+
+  if(! type %in% c('s','o')){
+    stop('available types are `s` and `o`')
+  }
+  if(min(X) < 0){
+    warning('`X` has negative values. Replaced by zero and normalized')
+    X[X < 0] = 0
+    X = sweep(X, 1, rowSums(X), "/")
+  }
+  if(any(abs(rowSums(X)-1)>1e-12)){
+    warning('rows of `X` does not sum to one. Rows are normalized')
+    X = sweep(X, 1, rowSums(X), "/")
+  }
+
   n = nrow(X)
   d = ncol(X)-1
   if(is.null(colnames(X))) colnames(X) = paste0('e',1:ncol(X))
-  var.names = colnames(X)
 
   ## output format
-  res = list(vertices = list(),       # vertices of low rank subsimplices
-             pts = list(),            # low rank approximations w.r.t. vertices
-             pts.approx = list(),     # low rank approximations w.r.t. original vertices
+  res = list(Vhat = list(),           # vertices of low rank subsimplices
+             Xhat = list(),           # low rank approximations w.r.t. vertices
+             Xhat_reduced = list(),   # low rank approximations w.r.t. original vertices
+             X = X,                   # given data
+             residuals = list(),      # residuals (vectors; in Delta_d scale)
              scores = list(),         # scalars
-             rss = list(),            # residual sum of squares
-             modes = list(),          # residuals (vectors; in Delta_d scale)
-             loadings = NULL,         # loading vectors (matrix)
-             const.info = list())     # merge indices and weight
+             RSS = list(),            # residual sum of squares
+             backwards_mean = NULL,   # backwards mean
+             modes = NULL,            # loading vectors (matrix)
+             construction_info = list())     # merge indices and weight
 
   if(type == 's'){
     out = psas(X, testweights = testweights)
@@ -51,21 +66,24 @@ psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
     stop('type should be either `s` or `o`')
   }
 
-  res$vertices = rev(out$vertices)
-  res$pts = rev(out$pts)
-  res$pts.approx = rev(out$pts.approx)
+  res$Vhat = rev(out$vertices)
+  res$Xhat = rev(out$pts.approx)
+  res$Xhat_reduced = rev(out$pts)
+  names(res$Vhat) = paste0('r=',0:d)
+  names(res$Xhat) = paste0('r=',0:d)
+  names(res$Xhat_reduced) = paste0('r=',0:d)
 
   res$scores = rev(out$scores)
-  res$scores = do.call('cbind', res$scores)
-  colnames(res$scores) = paste0('Comp.',1:ncol(res$scores))
-  res$rss = apply(res$scores, 2, function(vec) sum(vec^2))
-  res$rss[d+1]=0
+  res$scores = do.call('cbind', res$scores[1:d])
+  colnames(res$scores) = paste0('r=',1:d)
+  res$RSS = apply(res$scores, 2, function(vec) sum(vec^2))
 
-  res$modes = rev(out$modes)
-  res$const.info = out$merges
+  res$backwards_mean = res$Vhat$`r=0`
+  res$residuals = lapply(1:d, function(r) res$Xhat[[paste0('r=',r)]] - res$Xhat[[paste0('r=',r-1)]])
+  names(res$residuals) = paste0('r=',1:d)
+  res$construction_info = out$merges
 
-  res$loadings = get_loading(out)
-  colnames(res$loadings) = paste0('Comp.',1:ncol(res$loadings))
+  res$modes = get_loading(out)
 
   return(res)
 }

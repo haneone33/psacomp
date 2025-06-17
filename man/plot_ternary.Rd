@@ -4,12 +4,14 @@
 \alias{plot_ternary}
 \title{Ternary Plot for PSA}
 \usage{
-plot_ternary(psa.res, group = NULL, max.k = 12)
+plot_ternary(psa.res, groups = NULL, group.name = NULL, max.k = 12)
 }
 \arguments{
 \item{psa.res}{output of \code{psa()}}
 
-\item{group}{a vector of factors representing groups of data points if applicable}
+\item{groups}{a vector for colors of data points if applicable}
+
+\item{group.name}{title for legend if \code{groups} exists}
 
 \item{max.k}{maximum number of elements to display}
 }
