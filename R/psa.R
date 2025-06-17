@@ -1,21 +1,21 @@
-#' @title Principal Nested Simplices Analysis
+#' @title Principal Subsimplex Analysis
 #' @description Estimate PSA-S or PSA-O of given data matrix.
 #'
-#' @param type `s` for PSA-S or `o` for PSA-O.
-#' @param X A data matrix.
-#' @param testweights A vector of weights to try.
-#' @return A list
-#' + vertices a list of matrix representing vertices of the lower dimensional subsimplex.
-#'The $r$th element of the list corresponds to the rank $r-1$ subsimplex.
-#' + pts a list of lower dimensional representations with respect to the reduced basis `vertices`
-#' + pts.approx a list of lower dimensional representations with respect to the original basis
-#' + scores a matrix of scores.
-#' + rss a vector of residual sums of squares.
-#' + modes a list of modes of variation. The $r$th element of the list is the difference of
-#' rank $r$ approximations to rank $r-1$ approximations.
-#' + loadings a matrix of loading vectors.
-#' + construction_info a data frame of merged vertices and merging weight at each merge.
-#' + dendrogram.input .
+#' @param type 's' for PSA-S or 'o' for PSA-O.
+#' @param X a data matrix.
+#' @param testweights a vector of weights for grid search for alpha.
+#' @return A list of the following components of PSA.
+#' \item{Vhat}{a list of matrix representing vertices of the lower dimensional subsimplex.}
+#' \item{Xhat}{a list of lower dimensional representations with respect to the original basis.}
+#' \item{Xhat_reduced}{a list of lower dimensional representations with respect to the reduced basis `Vhat`}
+#' \item{scores}{a matrix of scores.}
+#' \item{X}{the input matrix.}
+#' \item{residuals}{a list of residuals.}
+#' \item{scores}{a matrix of scores.}
+#' \item{RSS}{a vector of residual sums of squares.}
+#' \item{backwards_mean}{the backwards mean. Equal to `Vhat$'r=0'`.}
+#' \item{loadings}{a matrix of loading vectors.}
+#' \item{construction_info}{a data frame of merged vertices and merging weight at each merge.}
 #'
 #' @export
 
@@ -47,27 +47,27 @@ psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
              scores = list(),         # scalars
              RSS = list(),            # residual sum of squares
              backwards_mean = NULL,   # backwards mean
-             modes = NULL,            # loading vectors (matrix)
+             loadings = NULL,            # loading vectors (matrix)
              construction_info = list())     # merge indices and weight
 
   if(type == 's'){
     out = psas(X, testweights = testweights)
-    out$pts.approx = list()
+    out$Xhat = list()
     for(i in names(out$pts)){
-      out$pts.approx[[i]] = out$pts[[i]] %*% out$vertices[[i]]
+      out$Xhat[[i]] = out$pts[[i]] %*% out$vertices[[i]]
     }
   }else if(type == 'o'){
     out = psao(X, testweights = testweights)
-    out$pts.approx = list()
+    out$Xhat = list()
     for(i in names(out$pts)){
-      out$pts.approx[[i]] = divL1(divL2(out$pts[[i]]) %*% out$vertices[[i]])
+      out$Xhat[[i]] = divL1(divL2(out$pts[[i]]) %*% out$vertices[[i]])
     }
   }else{
     stop('type should be either `s` or `o`')
   }
 
   res$Vhat = rev(out$vertices)
-  res$Xhat = rev(out$pts.approx)
+  res$Xhat = rev(out$Xhat)
   res$Xhat_reduced = rev(out$pts)
   names(res$Vhat) = paste0('r=',0:d)
   names(res$Xhat) = paste0('r=',0:d)
@@ -83,7 +83,7 @@ psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
   names(res$residuals) = paste0('r=',1:d)
   res$construction_info = out$merges
 
-  res$modes = get_loading(out)
+  res$loadings = get_loading(out)
 
   return(res)
 }

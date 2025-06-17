@@ -1,9 +1,14 @@
 Package: psacomp
-Title: What the Package Does (One Line, Title Case)
+Title: Principal Subsimplex Analysis for Compositional Data
 Version: 0.0.0.9000
 Authors@R: 
-    person("Hyeon", "Lee", , "haneone19997@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    c(person("Hyeon", "Lee", email = "haneone19997@gmail.edu", role = c("aut", "cre")),
+    person("Kassel Liam", "Hingee", role = "aut"),
+    person("Janice", "Scealy", role = "ctb"),
+    person("Andrew", "Wood", role = "ctb"),
+    person("Eric", "Grunsky", role = "ctb"),
+    person("J. S.", "Marron", role = "ctb"))
+Description: "psacomp'' is a package for computing Principal Subsimplex Analysis introduced in Principal Subsimplex Analysis (2025+), Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

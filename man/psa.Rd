@@ -2,32 +2,30 @@
 % Please edit documentation in R/psa.R
 \name{psa}
 \alias{psa}
-\title{Principal Nested Simplices Analysis}
+\title{Principal Subsimplex Analysis}
 \usage{
 psa(type, X, testweights = seq(0, 1, length.out = 100))
 }
 \arguments{
-\item{type}{\code{s} for PSA-S or \code{o} for PSA-O.}
+\item{type}{'s' for PSA-S or 'o' for PSA-O.}
 
-\item{X}{A data matrix.}
+\item{X}{a data matrix.}
 
-\item{testweights}{A vector of weights to try.}
+\item{testweights}{a vector of weights for grid search for alpha.}
 }
 \value{
-A list
-\itemize{
-\item vertices a list of matrix representing vertices of the lower dimensional subsimplex.
-The $r$th element of the list corresponds to the rank $r-1$ subsimplex.
-\item pts a list of lower dimensional representations with respect to the reduced basis \code{vertices}
-\item pts.approx a list of lower dimensional representations with respect to the original basis
-\item scores a matrix of scores.
-\item rss a vector of residual sums of squares.
-\item modes a list of modes of variation. The $r$th element of the list is the difference of
-rank $r$ approximations to rank $r-1$ approximations.
-\item loadings a matrix of loading vectors.
-\item const.info a data frame of merged vertices and merging weight at each merge.
-\item dendrogram.input .
-}
+A list of the following components of PSA.
+\item{Vhat}{a list of matrix representing vertices of the lower dimensional subsimplex.}
+\item{Xhat}{a list of lower dimensional representations with respect to the original basis.}
+\item{Xhat_reduced}{a list of lower dimensional representations with respect to the reduced basis \code{Vhat}}
+\item{scores}{a matrix of scores.}
+\item{X}{the input matrix.}
+\item{residuals}{a list of residuals.}
+\item{scores}{a matrix of scores.}
+\item{RSS}{a vector of residual sums of squares.}
+\item{backwards_mean}{the backwards mean. Equal to \code{Vhat$'r=0'}.}
+\item{loadings}{a matrix of loading vectors.}
+\item{construction_info}{a data frame of merged vertices and merging weight at each merge.}
 }
 \description{
 Estimate PSA-S or PSA-O of given data matrix.

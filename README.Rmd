@@ -40,55 +40,29 @@ X = sweep(X, 1, rowSums(X), '/')
 Main function of *psacomp* is `psa()` which takes `type` and `X` as arguments. Available options for `type` are `type = 's'` for PSA-S and `type = 'o'` for PSA-O.
 
 ```{r, incdlue = TRUE}
-# library(psacomp)
-library(devtools)
-load_all()
+library(psacomp)
 X.psas = psa(type = 's', X = X)
 X.psao = psa(type = 'o', X = X)
 ```
 
-## Visualization
-
-Two types of graphics are provided. The first graphic is the ternary plot of 2-dimensional representation. The function `plot_ternary()` creates a ternary plot along with the plot of the three vertices.
-
-```{r, include = TRUE, fig.width = 6, fig.height = 4}
-plot_ternary(X.psas)
-```
-
-The data points can be colored according to any associated features such as `groups` below.
-
-```{r, include = TRUE, fig.width = 6, fig.height = 4}
-groups = as.factor(rep(1:4, each = 5))
-plot_ternary(X.psas, groups = groups)
-```
-
-`groups` can be continuous. The legend title is given by `group.name`.
-
-```{r, include = TRUE, fig.width = 6, fig.height = 4}
-intensity = rnorm(20)
-plot_ternary(X.psas, groups = intensity, group.name = 'Intensity')
-```
-The second graphic is a bar plot representing the loading vectors. `plot_loading(X.psas, k)` displays the first `k` loading vectors.
-```{r, incdlue = TRUE, fig.width = 6, fig.height = 3}
-plot_loading(X.psas, k = 5)
-```
-
 ## Output Details
-`psa()` outputs a list of information calculated through PSA. The information is summarized in the following table. Suppose `X` is a data matrix with $n$ rows and $D$ columns.
+`psa()` outputs a list of information calculated through PSA. The information is summarized in the following table. We assume `X` is a data matrix with $n$ rows and $D$ columns.
 
 ```{r table1, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
 | Name       | Type         | Dimension   | Description                        |
 |--------|:------------:|:-------:|------------------------------------|
-| vertices   | list         | $D$         | `vertices$'r=i'` is an $i\\times D$ matrix of vertices of representation with $i$ vertices, each row representing a vertex   |
-| pts.approx | list         | $D$         | `pts.approx$'r=i'` is an $n\times i$ matrix of rank $i-1$ representation, in the new vertex system of `vertices$'r=i'`        |
-| pts        | list         | $D$         | `pts$'r=i'` is an $n\\times D$ matrix of rank $i-1$ representation, in the original vertex system of $D$ unit vertices       |
-| scores     | matrix       | $n\\times D$ | scores |
-| rss        | vector       | $D$         | residual sum of squares            |
-| loadings   | matrix       | $D\\times D$ | a matrix of loading vectors, each column representing a loading vector                                                  |
-| modes      | list         | $D$         | `modes$'r=i'` is a matrix of $i$th residual, i.e. difference `pts$'r=(i+1)'-pts$'r=i'`                                           |
-| const.info | data frame   | $D\\times 3$ | construction information. contains index of merged vertices and merge weights                                              |
+| Vhat   | list         | $D$         | `vertices$'r=i'` is an $i\\times D$ matrix of vertices of representation with $i$ vertices, each row representing a vertex   |
+| Xhat | list         | $D$         | `pts.approx$'r=i'` is an $n\times i$ matrix of rank $i-1$ representation, in the new vertex system of `vertices$'r=i'`        |
+| Xhat_reduced | list         | $D$         | `pts$'r=i'` is an $n\\times D$ matrix of rank $i-1$ representation, in the original vertex system of $D$ unit vertices       |
+| X      | matrix | $n\\times D$ | given data matrix |
+| residuals | list | $D-1$ | residuals |
+| scores     | matrix       | $n\\times (D-1)$ | scores |
+| RSS  | vector       | $D-1$         | residual sum of squares            |
+| backwards_mean | vector | $D$ | the backwards mean |
+| loadings   | matrix       | $D\\times (D-1)$ | a matrix of loading vectors, each column representing a loading vector                                                  |
+| construction_info | data frame   | $D\\times 3$ | construction information. contains index of merged vertices and merge weights                                              |
 "
-cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
+cat(tabl)
 ```
 
