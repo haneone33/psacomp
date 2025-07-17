@@ -16,13 +16,5 @@ Authors:
   \item Kassel Liam Hingee
 }
 
-Other contributors:
-\itemize{
-  \item Janice Scealy [contributor]
-  \item Andrew Wood [contributor]
-  \item Eric Grunsky [contributor]
-  \item J. S. Marron [contributor]
-}
-
 }
 \keyword{internal}
