@@ -21,6 +21,7 @@
 
 psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
 
+  ## setup
   if(! type %in% c('s','o')){
     stop('available types are `s` and `o`')
   }
@@ -38,52 +39,59 @@ psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
   d = ncol(X)-1
   if(is.null(colnames(X))) colnames(X) = paste0('e',1:ncol(X))
 
-  ## output format
-  res = list(Vhat = list(),           # vertices of low rank subsimplices
-             Xhat = list(),           # low rank approximations w.r.t. vertices
-             Xhat_reduced = list(),   # low rank approximations w.r.t. original vertices
-             X = X,                   # given data
-             residuals = list(),      # residuals (vectors; in Delta_d scale)
-             scores = list(),         # scalars
-             RSS = list(),            # residual sum of squares
-             backwards_mean = NULL,   # backwards mean
-             loadings = NULL,            # loading vectors (matrix)
-             construction_info = list())     # merge indices and weight
-
+  ## core computation
   if(type == 's'){
-    out = psas(X, testweights = testweights)
-    out$Xhat = list()
-    for(i in names(out$pts)){
-      out$Xhat[[i]] = out$pts[[i]] %*% out$vertices[[i]]
+    res = psas(X, testweights = testweights)
+    res$Xhat = list()
+    for(i in names(res$pts)){
+      res$Xhat[[i]] = res$pts[[i]] %*% res$vertices[[i]]
     }
   }else if(type == 'o'){
-    out = psao(X, testweights = testweights)
-    out$Xhat = list()
-    for(i in names(out$pts)){
-      out$Xhat[[i]] = divL1(divL2(out$pts[[i]]) %*% out$vertices[[i]])
+    res = psao(X, testweights = testweights)
+    res$Xhat = list()
+    for(i in names(res$pts)){
+      res$Xhat[[i]] = divL1(divL2(res$pts[[i]]) %*% res$vertices[[i]])
     }
   }else{
     stop('type should be either `s` or `o`')
   }
 
-  res$Vhat = rev(out$vertices)
-  res$Xhat = rev(out$Xhat)
-  res$Xhat_reduced = rev(out$pts)
-  names(res$Vhat) = paste0('r=',0:d)
-  names(res$Xhat) = paste0('r=',0:d)
-  names(res$Xhat_reduced) = paste0('r=',0:d)
+  ## output format
+  out = list(X = X,                   # given data
+             Vhat = list(),           # vertices of low rank subsimplices
+             Xhat = list(),           # low rank approximations w.r.t. vertices
+             Xhat_reduced = list(),   # low rank approximations w.r.t. original vertices
+             scores = list(),         # scalars
+             RSS = list(),            # residual sum of squares
+             loadings = NULL,         # loading vectors (matrix)
+             backwards_mean = NULL,   # backwards mean
+             construction_info = list())     # merge indices and weight
 
-  res$scores = rev(out$scores)
-  res$scores = do.call('cbind', res$scores[1:d])
-  colnames(res$scores) = paste0('r=',1:d)
-  res$RSS = apply(res$scores, 2, function(vec) sum(vec^2))
+  # Vhat
+  out$Vhat = rev(res$vertices)
+  names(out$Vhat) = paste0('r=',0:d)
+  for(r in 1:(d+1)){
+    out$Vhat[[r]] = t(out$Vhat[[r]])
+    colnames(out$Vhat[[r]]) = paste0('V',1:ncol(out$Vhat[[r]]))
+  }
+  # Xhat
+  out$Xhat = rev(res$Xhat)
+  names(out$Xhat) = paste0('r=',0:d)
+  # Xhat_reduced
+  out$Xhat_reduced = rev(res$pts)
+  names(out$Xhat_reduced) = paste0('r=',0:d)
+  for(r in 1:(d+1)){
+    colnames(out$Xhat_reduced[[r]]) = paste0('V',1:ncol(out$Xhat_reduced[[r]]))
+  }
 
-  res$backwards_mean = res$Vhat$`r=0`
-  res$residuals = lapply(1:d, function(r) res$Xhat[[paste0('r=',r)]] - res$Xhat[[paste0('r=',r-1)]])
-  names(res$residuals) = paste0('r=',1:d)
-  res$construction_info = out$merges
+  out$scores = rev(res$scores)
+  out$scores = do.call('cbind', out$scores[1:d])
+  colnames(out$scores) = paste0('PC',1:d)
+  out$RSS = apply(out$scores, 2, function(x) sum(x^2))
+  out$loadings = get_loading(res)
 
-  res$loadings = get_loading(out)
+  out$backwards_mean = out$Vhat$`r=0`
+  out$construction_info = res$merges
 
-  return(res)
+  return(out)
 }
