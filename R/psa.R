@@ -1,8 +1,8 @@
 #' @title Principal Subsimplex Analysis
 #' @description Estimate PSA-S or PSA-O of given data matrix.
 #'
-#' @param type 's' for PSA-S or 'o' for PSA-O.
 #' @param X a data matrix.
+#' @param type Type of PSA. 's' for PSA-S, 'o' for PSA-O, or 'g' for PSA-G.
 #' @param testweights a vector of weights for grid search for alpha.
 #' @return A list of the following components of PSA.
 #' \item{Vhat}{a list of matrix representing vertices of the lower dimensional subsimplex.}
@@ -19,79 +19,24 @@
 #'
 #' @export
 
-psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
+psa <- function(X, type = c('s','o','g'), testweights = seq(0, 1, length.out = 100)){
 
   ## setup
-  if(! type %in% c('s','o')){
-    stop('available types are `s` and `o`')
-  }
-  if(min(X) < 0){
-    warning('`X` has negative values. Replaced by zero and normalized')
-    X[X < 0] = 0
-    X = sweep(X, 1, rowSums(X), "/")
-  }
-  if(any(abs(rowSums(X)-1)>1e-12)){
-    warning('rows of `X` does not sum to one. Rows are normalized')
-    X = sweep(X, 1, rowSums(X), "/")
-  }
+  type = match.arg(type)
 
+  X = to_simplex(X)
+  if(is.null(colnames(X))) colnames(X) = paste0('e',1:ncol(X))
   n = nrow(X)
   d = ncol(X)-1
-  if(is.null(colnames(X))) colnames(X) = paste0('e',1:ncol(X))
 
   ## core computation
   if(type == 's'){
-    res = psas(X, testweights = testweights)
-    res$Xhat = list()
-    for(i in names(res$pts)){
-      res$Xhat[[i]] = res$pts[[i]] %*% res$vertices[[i]]
-    }
+    out = psas_format_output(psas(X, testweights = testweights))
   }else if(type == 'o'){
-    res = psao(X, testweights = testweights)
-    res$Xhat = list()
-    for(i in names(res$pts)){
-      res$Xhat[[i]] = divL1(divL2(res$pts[[i]]) %*% res$vertices[[i]])
-    }
-  }else{
-    stop('type should be either `s` or `o`')
+    out = psao_format_output(psao(X, testweights = testweights))
+  }else if(type == 'g'){
+    out = psag(X)
   }
-
-  ## output format
-  out = list(X = X,                   # given data
-             Vhat = list(),           # vertices of low rank subsimplices
-             Xhat = list(),           # low rank approximations w.r.t. vertices
-             Xhat_reduced = list(),   # low rank approximations w.r.t. original vertices
-             scores = list(),         # scalars
-             RSS = list(),            # residual sum of squares
-             loadings = NULL,         # loading vectors (matrix)
-             backwards_mean = NULL,   # backwards mean
-             construction_info = list())     # merge indices and weight
-
-  # Vhat
-  out$Vhat = rev(res$vertices)
-  names(out$Vhat) = paste0('r=',0:d)
-  for(r in 1:(d+1)){
-    out$Vhat[[r]] = t(out$Vhat[[r]])
-    colnames(out$Vhat[[r]]) = paste0('V',1:ncol(out$Vhat[[r]]))
-  }
-  # Xhat
-  out$Xhat = rev(res$Xhat)
-  names(out$Xhat) = paste0('r=',0:d)
-  # Xhat_reduced
-  out$Xhat_reduced = rev(res$pts)
-  names(out$Xhat_reduced) = paste0('r=',0:d)
-  for(r in 1:(d+1)){
-    colnames(out$Xhat_reduced[[r]]) = paste0('V',1:ncol(out$Xhat_reduced[[r]]))
-  }
-
-  out$scores = rev(res$scores)
-  out$scores = do.call('cbind', out$scores[1:d])
-  colnames(out$scores) = paste0('PC',1:d)
-  out$RSS = apply(out$scores, 2, function(x) sum(x^2))
-  out$loadings = get_loading(res)
-
-  out$backwards_mean = out$Vhat$`r=0`
-  out$construction_info = res$merges
 
   return(out)
 }

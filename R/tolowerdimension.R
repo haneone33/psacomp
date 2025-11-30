@@ -1,7 +1,7 @@
 #' @title Finds and applies best merge
 #' @param X matrix of data points for a simplex with vertices at the basis coordinates. Each row an observation.
 #' @param V matrix of vertices in the basis of the *original* data. Each row a vertex corresponding to the *columns* of `X`.
-#' @param merge If supplied, used instead of [`gridsearch()`]. `bestmerge` must have same structure as result from [`gridsearch()`]
+#' @param merge If supplied, used instead of `gridsearch()`. `bestmerge` must have same structure as result from `gridsearch()`
 #' @inheritParams gridsearch
 #' @param projector A function that takes result of `gridsearch()` and applies a projection. Returning `X`, `V`, `scores`, `mergedirection`.
 #' @return A list

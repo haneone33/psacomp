@@ -4,12 +4,12 @@
 \alias{psa}
 \title{Principal Subsimplex Analysis}
 \usage{
-psa(type, X, testweights = seq(0, 1, length.out = 100))
+psa(X, type = c("s", "o", "g"), testweights = seq(0, 1, length.out = 100))
 }
 \arguments{
-\item{type}{'s' for PSA-S or 'o' for PSA-O.}
-
 \item{X}{a data matrix.}
+
+\item{type}{Type of PSA. 's' for PSA-S, 'o' for PSA-O, or 'g' for PSA-G.}
 
 \item{testweights}{a vector of weights for grid search for alpha.}
 }
